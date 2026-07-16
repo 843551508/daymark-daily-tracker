@@ -2,7 +2,7 @@ FROM php:8.3-apache
 
 COPY docker/apache-daymark.conf /etc/apache2/conf-available/daymark-security.conf
 
-RUN docker-php-ext-install sqlite3 \
+RUN php -m | grep -qi '^sqlite3$' \
     && a2enconf daymark-security
 
 COPY . /var/www/html/
