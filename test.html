@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>日迹 API 自检</title>
+  <style>
+    body{max-width:840px;margin:40px auto;padding:0 20px;background:#f5f7f8;color:#182326;font:14px/1.6 system-ui,"Microsoft YaHei",sans-serif}
+    h1{font-size:24px}button{padding:9px 14px;margin:0 6px 8px 0;border:1px solid #147d6a;border-radius:5px;background:#147d6a;color:#fff;cursor:pointer}
+    pre{min-height:260px;padding:16px;overflow:auto;background:#182022;color:#edf3f2;border-radius:6px;white-space:pre-wrap}.ok{color:#62d7b8}.bad{color:#ff8d96}
+  </style>
+</head>
+<body>
+  <h1>日迹 API 自检</h1>
+  <p>用于部署后检查 PHP、SQLite 和整站状态读写。</p>
+  <button data-test="health">健康检查</button><button data-test="state">状态读写</button><button data-test="records">兼容接口</button><button data-test="all">运行全部</button>
+  <pre id="output">等待测试...</pre>
+  <script>
+    const out=document.getElementById('output');
+    const api=(method,path,body)=>fetch('api.php?endpoint='+encodeURIComponent(path),{method,headers:{'Content-Type':'application/json'},body:body===undefined?undefined:JSON.stringify(body)}).then(async r=>{const d=await r.json();if(!r.ok||d.ok===false)throw new Error(d.error||r.status);return d});
+    const log=(text,ok=true)=>{out.innerHTML+=`<span class="${ok?'ok':'bad'}">${ok?'PASS':'FAIL'}</span> ${text}\n`};
+    async function health(){const d=await api('GET','/api/health');log(`健康检查：PHP ${d.php} / SQLite ${d.sqlite}`)}
+    async function state(){const before=await api('GET','/api/state');const payload=Object.keys(before.data||{}).length?before.data:{version:4,updatedAt:new Date().toISOString(),finance:[],daily:{},habits:[],habitLogs:{},tasks:[],goals:[],budgets:{},customMetrics:[],settings:{}};await api('PUT','/api/state',payload);const after=await api('GET','/api/state');if(after.data.version!==4)throw new Error('状态回读不一致');log('整站状态写入与回读')}
+    async function records(){const d=await api('GET','/api/records');log(`旧收支接口：${d.data.length} 条记录`)}
+    async function run(name){out.textContent='';try{if(name==='all'){await health();await state();await records()}else await({health,state,records})[name]()}catch(e){log(e.message,false)}}
+    document.addEventListener('click',e=>{const b=e.target.closest('[data-test]');if(b)run(b.dataset.test)});
+  </script>
+</body>
+</html>

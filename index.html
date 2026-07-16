@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#f5f7f8">
+  <meta name="description" content="日迹 - 本地优先的个人日常统计面板">
+  <title>日迹 · 每日统计</title>
+  <link rel="stylesheet" href="assets/app.css">
+  <script defer src="assets/vendor/lucide.min.js"></script>
+  <script defer src="assets/app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <span class="brand-mark">日</span>
+        <span><strong>日迹</strong><small>Daymark</small></span>
+      </div>
+      <nav class="nav-list" aria-label="主导航">
+        <button class="nav-item active" data-view="overview"><i data-lucide="layout-dashboard"></i><span>今日总览</span></button>
+        <button class="nav-item" data-view="finance"><i data-lucide="wallet-cards"></i><span>收支预算</span></button>
+        <button class="nav-item" data-view="habits"><i data-lucide="circle-check-big"></i><span>习惯打卡</span></button>
+        <button class="nav-item" data-view="health"><i data-lucide="heart-pulse"></i><span>健康状态</span></button>
+        <button class="nav-item" data-view="tasks"><i data-lucide="list-todo"></i><span>任务目标</span></button>
+        <button class="nav-item" data-view="calendar"><i data-lucide="calendar-days"></i><span>统计日历</span></button>
+        <button class="nav-item" data-view="insights"><i data-lucide="chart-no-axes-combined"></i><span>趋势洞察</span></button>
+        <button class="nav-item" data-view="data"><i data-lucide="database"></i><span>数据中心</span></button>
+      </nav>
+      <div class="sidebar-foot">
+        <span class="sync-indicator" id="syncIndicator"><span></span><b>正在连接</b></span>
+        <small id="storageCaption">本地优先存储</small>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="icon-btn mobile-menu" id="mobileMenu" title="打开导航" aria-label="打开导航"><i data-lucide="menu"></i></button>
+        <div class="date-control">
+          <button class="icon-btn" id="datePrev" title="前一天" aria-label="前一天"><i data-lucide="chevron-left"></i></button>
+          <button class="date-label" id="dateLabel" title="选择日期">今天</button>
+          <input type="date" id="globalDate" aria-label="统计日期">
+          <button class="icon-btn" id="dateNext" title="后一天" aria-label="后一天"><i data-lucide="chevron-right"></i></button>
+          <button class="text-btn compact" id="dateToday">今天</button>
+        </div>
+        <div class="top-actions">
+          <button class="search-trigger" id="globalSearch" aria-label="搜索全部记录"><i data-lucide="search"></i><span>搜索全部记录</span></button>
+          <button class="icon-btn" id="themeToggle" title="切换主题" aria-label="切换主题"><i data-lucide="sun-moon"></i></button>
+          <button class="primary-btn" id="quickAdd" aria-label="快速记录"><i data-lucide="plus"></i><span>快速记录</span></button>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="view active" id="view-overview" data-title="今日总览">
+          <div class="page-heading">
+            <div><p class="eyebrow" id="overviewEyebrow">今日状态</p><h1 id="overviewGreeting">把今天记清楚</h1></div>
+            <span class="day-score" id="dayScore"><b>0</b><small>今日完成度</small></span>
+          </div>
+          <div class="stat-grid">
+            <article class="stat-card accent-green"><span class="stat-icon"><i data-lucide="badge-dollar-sign"></i></span><div><small>今日结余</small><strong id="statBalance">¥0.00</strong><em id="statFinanceMeta">0 笔记录</em></div></article>
+            <article class="stat-card accent-amber"><span class="stat-icon"><i data-lucide="flame"></i></span><div><small>习惯完成</small><strong id="statHabit">0 / 0</strong><em id="statHabitMeta">尚未打卡</em></div></article>
+            <article class="stat-card accent-blue"><span class="stat-icon"><i data-lucide="timer"></i></span><div><small>专注时长</small><strong id="statFocus">0 分钟</strong><em id="statTaskMeta">0 项任务完成</em></div></article>
+            <article class="stat-card accent-coral"><span class="stat-icon"><i data-lucide="heart-handshake"></i></span><div><small>身心状态</small><strong id="statWellness">待记录</strong><em id="statWellnessMeta">睡眠与心情</em></div></article>
+          </div>
+          <div class="overview-grid">
+            <section class="panel checkin-panel">
+              <div class="panel-head"><div><h2>每日签到</h2><p>核心状态一次录完</p></div><span class="saved-at" id="checkinSaved"></span></div>
+              <form id="dailyForm" class="checkin-form">
+                <div class="mood-field"><label>今日心情</label><div class="mood-picker" id="moodPicker" role="radiogroup" aria-label="今日心情">
+                  <button type="button" data-mood="1" title="很差">1</button><button type="button" data-mood="2" title="不佳">2</button><button type="button" data-mood="3" title="平稳">3</button><button type="button" data-mood="4" title="不错">4</button><button type="button" data-mood="5" title="很好">5</button>
+                </div></div>
+                <div class="field-grid four">
+                  <label><span>睡眠</span><div class="unit-input"><input id="dailySleep" type="number" min="0" max="24" step="0.1" placeholder="0"><b>小时</b></div></label>
+                  <label><span>饮水</span><div class="unit-input"><input id="dailyWater" type="number" min="0" step="100" placeholder="0"><b>ml</b></div></label>
+                  <label><span>步数</span><div class="unit-input"><input id="dailySteps" type="number" min="0" step="100" placeholder="0"><b>步</b></div></label>
+                  <label><span>专注</span><div class="unit-input"><input id="dailyFocus" type="number" min="0" step="5" placeholder="0"><b>分钟</b></div></label>
+                </div>
+                <label class="wide-field"><span>今日一句</span><textarea id="dailyNote" rows="2" placeholder="记录值得记住的事、感受或复盘"></textarea></label>
+                <div class="form-actions"><button class="primary-btn" type="submit"><i data-lucide="save"></i>保存签到</button><button class="ghost-btn" type="button" data-goto="health"><i data-lucide="sliders-horizontal"></i>更多指标</button></div>
+              </form>
+            </section>
+            <section class="panel today-habits-panel">
+              <div class="panel-head"><div><h2>今日习惯</h2><p id="habitProgressText">0 项待完成</p></div><button class="icon-btn" data-goto="habits" title="管理习惯" aria-label="管理习惯"><i data-lucide="settings-2"></i></button></div>
+              <div class="habit-list" id="overviewHabits"></div>
+            </section>
+            <section class="panel today-tasks-panel">
+              <div class="panel-head"><div><h2>今日任务</h2><p id="taskProgressText">0 项待处理</p></div><button class="icon-btn" data-goto="tasks" title="查看任务" aria-label="查看任务"><i data-lucide="arrow-up-right"></i></button></div>
+              <form class="quick-task" id="quickTaskForm"><input id="quickTaskInput" maxlength="100" placeholder="添加一项今日任务"><button class="icon-btn" title="添加任务" aria-label="添加任务"><i data-lucide="plus"></i></button></form>
+              <div class="task-list compact-list" id="overviewTasks"></div>
+            </section>
+            <section class="panel mini-trend-panel">
+              <div class="panel-head"><div><h2>近 7 日节奏</h2><p>收入、支出与完成度</p></div><button class="icon-btn" data-goto="insights" title="查看洞察" aria-label="查看洞察"><i data-lucide="maximize-2"></i></button></div>
+              <canvas class="chart-canvas" id="overviewChart" aria-label="近七日趋势图"></canvas>
+              <div class="chart-legend"><span class="income">收入</span><span class="expense">支出</span><span class="completion">完成度</span></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="view-finance" data-title="收支预算">
+          <div class="page-heading"><div><p class="eyebrow">收支与预算</p><h1>钱花在哪，一眼看清</h1></div><button class="primary-btn" id="openFinanceForm"><i data-lucide="plus"></i>记一笔</button></div>
+          <div class="stat-grid finance-stats">
+            <article class="metric"><small>本月收入</small><strong id="monthIncome">¥0.00</strong><em id="incomeCount">0 笔</em></article>
+            <article class="metric"><small>本月支出</small><strong id="monthExpense">¥0.00</strong><em id="expenseCount">0 笔</em></article>
+            <article class="metric"><small>本月结余</small><strong id="monthNet">¥0.00</strong><em id="savingRate">储蓄率 0%</em></article>
+            <article class="metric"><small>日均支出</small><strong id="dailyAverage">¥0.00</strong><em id="budgetStatus">未设置总预算</em></article>
+          </div>
+          <div class="finance-grid">
+            <section class="panel finance-entry" id="financeEntryPanel">
+              <div class="panel-head"><div><h2>新增记录</h2><p>支持表单与自然语言</p></div></div>
+              <form id="financeForm" class="stack-form">
+                <div class="segmented" id="financeType"><button type="button" class="active" data-type="expense">支出</button><button type="button" data-type="income">收入</button></div>
+                <div class="field-grid two">
+                  <label><span>金额</span><input id="financeAmount" type="number" min="0.01" step="0.01" required placeholder="0.00"></label>
+                  <label><span>日期</span><input id="financeDate" type="date" required></label>
+                  <label><span>分类</span><select id="financeCategory"></select></label>
+                  <label><span>账户</span><select id="financeAccount"><option>现金</option><option>银行卡</option><option>微信</option><option>支付宝</option><option>信用卡</option><option>其他</option></select></label>
+                </div>
+                <label><span>备注</span><input id="financeNote" maxlength="120" placeholder="例如：午餐、打车、项目收入"></label>
+                <button class="primary-btn" type="submit"><i data-lucide="check"></i>保存记录</button>
+              </form>
+              <div class="natural-entry"><label for="naturalFinance">批量快速记账</label><textarea id="naturalFinance" rows="2" placeholder="午饭35，打车18，工资+8000"></textarea><button class="ghost-btn" id="parseFinance" type="button"><i data-lucide="wand-sparkles"></i>识别并保存</button></div>
+            </section>
+            <section class="panel budget-panel">
+              <div class="panel-head"><div><h2>本月预算</h2><p>按分类控制支出</p></div><button class="icon-btn" id="editBudgets" title="设置预算" aria-label="设置预算"><i data-lucide="pencil"></i></button></div>
+              <div id="budgetList" class="progress-list"></div>
+            </section>
+            <section class="panel finance-chart-panel">
+              <div class="panel-head"><div><h2>月度走势</h2><p id="financeChartCaption">每日收支</p></div><input type="month" id="financeMonth" aria-label="统计月份"></div>
+              <canvas class="chart-canvas tall" id="financeChart" aria-label="月度收支趋势图"></canvas>
+            </section>
+          </div>
+          <section class="panel records-panel">
+            <div class="panel-head records-head"><div><h2>收支明细</h2><p id="recordCountLabel">共 0 条</p></div><div class="filter-row"><div class="input-icon"><i data-lucide="search"></i><input id="financeSearch" placeholder="搜索备注或分类"></div><select id="financeFilterType"><option value="all">全部类型</option><option value="expense">支出</option><option value="income">收入</option></select><button class="icon-btn" id="exportFinanceCsv" title="导出 CSV" aria-label="导出 CSV"><i data-lucide="download"></i></button></div></div>
+            <div class="table-wrap"><table><thead><tr><th>日期</th><th>类型</th><th>分类</th><th>账户</th><th>备注</th><th class="num">金额</th><th></th></tr></thead><tbody id="financeTable"></tbody></table></div>
+          </section>
+        </section>
+
+        <section class="view" id="view-habits" data-title="习惯打卡">
+          <div class="page-heading"><div><p class="eyebrow">连续行动</p><h1>让好习惯有迹可循</h1></div><button class="primary-btn" id="addHabit"><i data-lucide="plus"></i>新建习惯</button></div>
+          <div class="habit-summary" id="habitSummary"></div>
+          <section class="panel habit-board">
+            <div class="panel-head"><div><h2>本周打卡</h2><p id="habitWeekRange"></p></div><div class="week-nav"><button class="icon-btn" id="habitWeekPrev" title="上一周" aria-label="上一周"><i data-lucide="chevron-left"></i></button><button class="text-btn compact" id="habitWeekCurrent">本周</button><button class="icon-btn" id="habitWeekNext" title="下一周" aria-label="下一周"><i data-lucide="chevron-right"></i></button></div></div>
+            <div class="habit-week" id="habitWeek"></div>
+          </section>
+          <section class="panel habit-manage"><div class="panel-head"><div><h2>习惯管理</h2><p>目标、频率与连续天数</p></div></div><div class="manage-list" id="habitManageList"></div></section>
+        </section>
+
+        <section class="view" id="view-health" data-title="健康状态">
+          <div class="page-heading"><div><p class="eyebrow">身心状态</p><h1>用趋势代替模糊感觉</h1></div><button class="primary-btn" id="saveHealthTop"><i data-lucide="save"></i>保存当日</button></div>
+          <div class="health-grid">
+            <section class="panel health-entry">
+              <div class="panel-head"><div><h2 id="healthFormTitle">健康记录</h2><p>选择日期后录入</p></div></div>
+              <form id="healthForm" class="stack-form">
+                <div class="field-grid three">
+                  <label><span>睡眠时长</span><div class="unit-input"><input id="healthSleep" type="number" min="0" max="24" step="0.1"><b>小时</b></div></label>
+                  <label><span>体重</span><div class="unit-input"><input id="healthWeight" type="number" min="0" step="0.1"><b>kg</b></div></label>
+                  <label><span>步数</span><div class="unit-input"><input id="healthSteps" type="number" min="0" step="100"><b>步</b></div></label>
+                  <label><span>饮水</span><div class="unit-input"><input id="healthWater" type="number" min="0" step="100"><b>ml</b></div></label>
+                  <label><span>运动</span><div class="unit-input"><input id="healthExercise" type="number" min="0" step="5"><b>分钟</b></div></label>
+                  <label><span>专注</span><div class="unit-input"><input id="healthFocus" type="number" min="0" step="5"><b>分钟</b></div></label>
+                  <label><span>屏幕时间</span><div class="unit-input"><input id="healthScreen" type="number" min="0" step="5"><b>分钟</b></div></label>
+                  <label><span>精力</span><input id="healthEnergy" type="range" min="1" max="5" step="1"><output id="healthEnergyOut">3</output></label>
+                  <label><span>压力</span><input id="healthStress" type="range" min="1" max="5" step="1"><output id="healthStressOut">3</output></label>
+                </div>
+                <div id="customMetricInputs" class="field-grid three"></div>
+                <label><span>感恩记录</span><textarea id="healthGratitude" rows="2" placeholder="今天值得感谢的人或事"></textarea></label>
+                <button class="primary-btn" type="submit"><i data-lucide="check"></i>保存健康记录</button>
+              </form>
+            </section>
+            <section class="panel health-trend">
+              <div class="panel-head"><div><h2>健康趋势</h2><p>最近 30 天</p></div><select id="healthMetric"><option value="sleep">睡眠</option><option value="weight">体重</option><option value="steps">步数</option><option value="water">饮水</option><option value="exercise">运动</option><option value="focus">专注</option><option value="screen">屏幕时间</option></select></div>
+              <canvas class="chart-canvas tall" id="healthChart" aria-label="健康指标趋势图"></canvas>
+              <div class="trend-summary" id="healthTrendSummary"></div>
+            </section>
+          </div>
+          <section class="panel custom-metrics-panel"><div class="panel-head"><div><h2>自定义指标</h2><p>热量、血压、药物、阅读页数等都能统计</p></div><button class="primary-btn secondary" id="addMetric"><i data-lucide="plus"></i>添加指标</button></div><div class="metric-tag-list" id="customMetricList"></div></section>
+        </section>
+
+        <section class="view" id="view-tasks" data-title="任务目标">
+          <div class="page-heading"><div><p class="eyebrow">行动与里程碑</p><h1>今天做什么，长期去哪里</h1></div><button class="primary-btn" id="addGoal"><i data-lucide="target"></i>新建目标</button></div>
+          <div class="task-goal-grid">
+            <section class="panel task-workspace">
+              <div class="panel-head"><div><h2>任务清单</h2><p id="taskListCaption">全部待办</p></div><div class="segmented small" id="taskFilter"><button class="active" data-filter="today">今天</button><button data-filter="pending">待办</button><button data-filter="done">已完成</button><button data-filter="all">全部</button></div></div>
+              <form class="task-create" id="taskForm"><input id="taskTitle" required maxlength="100" placeholder="输入任务"><input id="taskDate" type="date" required><select id="taskPriority"><option value="normal">普通</option><option value="high">高优先</option><option value="low">低优先</option></select><button class="primary-btn" type="submit"><i data-lucide="plus"></i>添加</button></form>
+              <div class="task-list" id="taskList"></div>
+            </section>
+            <section class="panel goal-workspace">
+              <div class="panel-head"><div><h2>目标进度</h2><p>把长期目标拆成数字</p></div></div>
+              <div class="goal-list" id="goalList"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="view-calendar" data-title="统计日历">
+          <div class="page-heading"><div><p class="eyebrow">月度轨迹</p><h1>每一天都留下证据</h1></div><div class="month-control"><button class="icon-btn" id="calendarPrev" title="上个月" aria-label="上个月"><i data-lucide="chevron-left"></i></button><strong id="calendarTitle"></strong><button class="icon-btn" id="calendarNext" title="下个月" aria-label="下个月"><i data-lucide="chevron-right"></i></button></div></div>
+          <div class="calendar-layout">
+            <section class="panel calendar-panel"><div class="calendar-weekdays"><span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span>六</span><span>日</span></div><div class="calendar-grid" id="calendarGrid"></div></section>
+            <aside class="panel day-detail" id="calendarDayDetail"></aside>
+          </div>
+        </section>
+
+        <section class="view" id="view-insights" data-title="趋势洞察">
+          <div class="page-heading"><div><p class="eyebrow">关联与变化</p><h1>从记录里找到规律</h1></div><select id="insightPeriod"><option value="7">近 7 天</option><option value="30" selected>近 30 天</option><option value="90">近 90 天</option></select></div>
+          <div class="insight-cards" id="insightCards"></div>
+          <div class="insight-grid">
+            <section class="panel"><div class="panel-head"><div><h2>生活完成度</h2><p>习惯、任务与签到</p></div></div><canvas class="chart-canvas tall" id="completionChart"></canvas></section>
+            <section class="panel"><div class="panel-head"><div><h2>心情与睡眠</h2><p>观察身心关联</p></div></div><canvas class="chart-canvas tall" id="moodSleepChart"></canvas></section>
+            <section class="panel full-span"><div class="panel-head"><div><h2>支出分类</h2><p>选定周期内的消费结构</p></div></div><div class="donut-layout"><canvas class="donut-canvas" id="expenseDonut"></canvas><div class="donut-legend" id="expenseLegend"></div></div></section>
+          </div>
+        </section>
+
+        <section class="view" id="view-data" data-title="数据中心">
+          <div class="page-heading"><div><p class="eyebrow">备份与设置</p><h1>你的数据由你掌控</h1></div><span class="version-badge">v4.0</span></div>
+          <div class="data-grid">
+            <section class="panel"><div class="panel-head"><div><h2>存储状态</h2><p id="dataStorageText">正在检测</p></div><span class="status-dot" id="dataStatusDot"></span></div><div class="data-stats" id="dataStats"></div></section>
+            <section class="panel"><div class="panel-head"><div><h2>备份与迁移</h2><p>JSON 可完整恢复，CSV 便于分析</p></div></div><div class="command-list"><button class="command" id="exportJson"><i data-lucide="file-down"></i><span><b>导出完整备份</b><small>包含全部模块与设置</small></span></button><label class="command"><i data-lucide="file-up"></i><span><b>导入备份</b><small>校验后合并或覆盖数据</small></span><input type="file" id="importJson" accept="application/json,.json" hidden></label><button class="command" id="exportAllCsv"><i data-lucide="sheet"></i><span><b>导出每日汇总 CSV</b><small>适合 Excel 与数据分析</small></span></button></div></section>
+            <section class="panel"><div class="panel-head"><div><h2>偏好设置</h2><p>目标值会影响完成度</p></div></div><form id="settingsForm" class="settings-form"><label><span>货币符号</span><input id="settingCurrency" maxlength="3" value="¥"></label><label><span>每日饮水目标</span><div class="unit-input"><input id="settingWater" type="number" min="0" step="100"><b>ml</b></div></label><label><span>每日步数目标</span><div class="unit-input"><input id="settingSteps" type="number" min="0" step="500"><b>步</b></div></label><label><span>睡眠目标</span><div class="unit-input"><input id="settingSleep" type="number" min="0" max="24" step="0.5"><b>小时</b></div></label><button class="primary-btn" type="submit"><i data-lucide="save"></i>保存设置</button></form></section>
+            <section class="panel danger-panel"><div class="panel-head"><div><h2>数据维护</h2><p>操作前会自动下载备份</p></div></div><div class="maintenance"><button class="ghost-btn" id="loadDemo"><i data-lucide="sparkles"></i>载入演示数据</button><button class="danger-btn" id="resetData"><i data-lucide="trash-2"></i>清空全部数据</button></div></section>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <dialog id="habitDialog"><form method="dialog" id="habitForm" class="dialog-form"><header><div><small>习惯设置</small><h2 id="habitDialogTitle">新建习惯</h2></div><button class="icon-btn" value="cancel" aria-label="关闭"><i data-lucide="x"></i></button></header><input type="hidden" id="habitId"><label><span>习惯名称</span><input id="habitName" required maxlength="30" placeholder="例如：阅读 30 分钟"></label><div class="field-grid two"><label><span>每日目标</span><input id="habitTarget" type="number" min="1" value="1"></label><label><span>单位</span><input id="habitUnit" maxlength="10" value="次"></label></div><label><span>颜色</span><input id="habitColor" type="color" value="#168a73"></label><footer><button class="ghost-btn" value="cancel">取消</button><button class="primary-btn" value="default"><i data-lucide="check"></i>保存</button></footer></form></dialog>
+  <dialog id="goalDialog"><form method="dialog" id="goalForm" class="dialog-form"><header><div><small>目标设置</small><h2>新建目标</h2></div><button class="icon-btn" value="cancel" aria-label="关闭"><i data-lucide="x"></i></button></header><label><span>目标名称</span><input id="goalTitle" required maxlength="50" placeholder="例如：全年阅读 24 本书"></label><div class="field-grid two"><label><span>目标值</span><input id="goalTarget" type="number" min="1" required></label><label><span>单位</span><input id="goalUnit" maxlength="10" value="次"></label><label><span>当前值</span><input id="goalCurrent" type="number" min="0" value="0"></label><label><span>截止日期</span><input id="goalDeadline" type="date"></label></div><footer><button class="ghost-btn" value="cancel">取消</button><button class="primary-btn" value="default"><i data-lucide="check"></i>保存</button></footer></form></dialog>
+  <dialog id="metricDialog"><form method="dialog" id="metricForm" class="dialog-form"><header><div><small>扩展统计</small><h2>添加自定义指标</h2></div><button class="icon-btn" value="cancel" aria-label="关闭"><i data-lucide="x"></i></button></header><label><span>指标名称</span><input id="metricName" required maxlength="30" placeholder="例如：阅读页数"></label><div class="field-grid two"><label><span>单位</span><input id="metricUnit" maxlength="10" placeholder="页"></label><label><span>每日目标</span><input id="metricTarget" type="number" min="0" step="0.1"></label></div><label><span>颜色</span><input id="metricColor" type="color" value="#3b6fd8"></label><footer><button class="ghost-btn" value="cancel">取消</button><button class="primary-btn" value="default"><i data-lucide="check"></i>保存</button></footer></form></dialog>
+  <dialog id="budgetDialog"><form method="dialog" id="budgetForm" class="dialog-form wide-dialog"><header><div><small>本月预算</small><h2>设置分类额度</h2></div><button class="icon-btn" value="cancel" aria-label="关闭"><i data-lucide="x"></i></button></header><div id="budgetInputs" class="budget-inputs"></div><footer><button class="ghost-btn" value="cancel">取消</button><button class="primary-btn" value="default"><i data-lucide="check"></i>保存预算</button></footer></form></dialog>
+  <dialog id="recordDialog"><form method="dialog" id="recordEditForm" class="dialog-form"><header><div><small>收支明细</small><h2>编辑记录</h2></div><button class="icon-btn" value="cancel" aria-label="关闭"><i data-lucide="x"></i></button></header><input type="hidden" id="editRecordId"><div class="field-grid two"><label><span>类型</span><select id="editRecordType"><option value="expense">支出</option><option value="income">收入</option></select></label><label><span>金额</span><input id="editRecordAmount" type="number" min="0.01" step="0.01" required></label><label><span>日期</span><input id="editRecordDate" type="date" required></label><label><span>分类</span><select id="editRecordCategory"></select></label></div><label><span>备注</span><input id="editRecordNote" maxlength="120"></label><footer><button class="danger-btn" type="button" id="deleteRecord"><i data-lucide="trash-2"></i>删除</button><span class="spacer"></span><button class="ghost-btn" value="cancel">取消</button><button class="primary-btn" value="default"><i data-lucide="check"></i>保存</button></footer></form></dialog>
+  <dialog id="searchDialog" class="search-dialog"><div class="search-box"><i data-lucide="search"></i><input id="searchInput" autocomplete="off" placeholder="搜索收支、任务、日记、目标"><button class="icon-btn" id="closeSearch" aria-label="关闭"><i data-lucide="x"></i></button></div><div class="search-results" id="searchResults"></div></dialog>
+  <dialog id="confirmDialog"><form method="dialog" class="dialog-form confirm-form"><header><div><small>请确认</small><h2 id="confirmTitle">确认操作</h2></div></header><p id="confirmMessage"></p><footer><button class="ghost-btn" value="cancel">取消</button><button class="danger-btn" value="confirm"><i data-lucide="check"></i>确认</button></footer></form></dialog>
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+</body>
+</html>

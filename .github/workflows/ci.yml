@@ -1,0 +1,47 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: sqlite3
+          coverage: none
+
+      - name: Check JavaScript syntax
+        run: node --check assets/app.js
+
+      - name: Check PHP syntax
+        run: php -l api.php
+
+      - name: Reject committed runtime data
+        shell: bash
+        run: |
+          if git ls-files | grep -E '(^|/)(data/.*\.(db|sqlite|sqlite3)(-(wal|shm))?|\.workbuddy/|backup/|backups/)'; then
+            echo "Runtime data or private workspace files must not be committed."
+            exit 1
+          fi
+
+      - name: Validate required release files
+        shell: bash
+        run: |
+          test -f README.md
+          test -f docs/USER_GUIDE.md
+          test -f docs/DEPLOYMENT.md
+          test -f Dockerfile
+          test -f docker-compose.yml

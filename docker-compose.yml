@@ -1,0 +1,15 @@
+services:
+  daymark:
+    build:
+      context: .
+    container_name: daymark
+    restart: unless-stopped
+    ports:
+      - "${DAYMARK_PORT:-8787}:80"
+    volumes:
+      - daymark_data:/var/www/html/data
+    security_opt:
+      - no-new-privileges:true
+
+volumes:
+  daymark_data:

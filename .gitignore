@@ -1,0 +1,24 @@
+/.workbuddy/
+
+# Runtime databases and user data
+/data/*.db
+/data/*.db-shm
+/data/*.db-wal
+/data/*.sqlite
+/data/*.sqlite3
+/backup/
+/backups/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+*.bak
+*.swp
+*~
+
+# Local tooling
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
