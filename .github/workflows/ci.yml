@@ -29,6 +29,9 @@ jobs:
       - name: Check PHP syntax
         run: php -l api.php
 
+      - name: Build Docker image
+        run: docker build --tag daymark-ci .
+
       - name: Reject committed runtime data
         shell: bash
         run: |
